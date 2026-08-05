@@ -1,6 +1,6 @@
 # Git 명령어 및 clone/pull 실습
 
-이 문서는 과제에서 요구하는 Git 명령어를 직접 실행하고 결과를 기록하기 위한 안내입니다.
+이 문서는 과제에서 요구하는 Git 명령어 실행 실습
 
 ## 기본 명령어 7종
 
@@ -14,7 +14,7 @@
 | `git checkout` | 브랜치를 생성하거나 이동 | [ ] |
 | `git clone` | 원격 저장소를 새 로컬 폴더로 복제 | [ ] |
 
-> 이미 GitHub 저장소를 `clone`한 폴더에서는 다시 `git init`할 필요가 없습니다. `git init` 실습은 별도의 연습 폴더에서 수행해도 됩니다.
+> 이미 GitHub 저장소를 `clone`한 폴더에서는 다시 `git init`할 필요가 없습니다. `git init` 실습은 별도의 연습 폴더에서 수행
 
 ## 브랜치 생성과 병합 확인
 
@@ -59,5 +59,5 @@ git status
 git log --oneline --graph --all --decorate
 ```
 
-명령어와 출력 결과가 함께 보이도록 캡처하여 `docs/screenshots/git-log.png`로 저장합니다.
+명령어와 출력 결과가 함께 보이도록 캡처하여 `docs/screenshots/git-log.png`로 저장
 
