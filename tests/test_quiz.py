@@ -3,7 +3,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from main import Quiz, QuizGame, create_default_quizzes
+from game import QuizGame
+from quiz import Quiz, create_default_quizzes
 
 
 class QuizTest(unittest.TestCase):

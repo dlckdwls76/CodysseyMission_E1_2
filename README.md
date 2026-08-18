@@ -117,6 +117,7 @@ python3 -m unittest discover -s tests -v
 
 - `Quiz` 클래스는 문제, 선택지, 정답처럼 하나의 퀴즈에 속하는 데이터를 하나의 객체로 묶습니다.
 - `QuizGame` 클래스는 퀴즈 목록, 최고 점수, 게임 실행 및 저장 기능을 한곳에서 관리합니다.
+- `StateStore` 클래스는 JSON 파일 입출력과 롤링 백업을 게임 진행 코드에서 분리합니다.
 - 클래스별로 역할을 분리하여 코드의 구조를 쉽게 이해하고 수정할 수 있습니다.
 - 새로운 퀴즈 기능이나 게임 규칙이 추가되더라도 관련 클래스만 확장할 수 있습니다.
 - 여러 퀴즈를 각각 독립된 `Quiz` 객체로 생성하여 동일한 구조로 관리할 수 있습니다.
@@ -165,11 +166,26 @@ python3 -m unittest discover -s tests -v
 | 메서드 | `load_state()` | JSON 데이터 불러오기 |
 | 메서드 | `save_state()` | JSON 데이터 저장하기 |
 
+### `StateStore`
+
+게임 화면과 관계없는 데이터 저장 책임을 전담합니다.
+
+| 종류 | 이름 | 역할 |
+| --- | --- | --- |
+| 속성 | `state_file` | JSON 저장 파일 경로 |
+| 메서드 | `load()` | JSON에서 퀴즈와 최고 점수 불러오기 |
+| 메서드 | `save()` | 현재 상태를 JSON으로 저장하기 |
+| 메서드 | `create_backup()` | 최근 3개 롤링 백업 생성하기 |
+| 메서드 | `parse_best_score()` | 최고 점수 데이터 검증 및 변환 |
+
 ## 파일 구조
 
 ```text
 CodysseyMission_E1_2/
 ├── main.py
+├── game.py
+├── quiz.py
+├── storage.py
 ├── state.json
 ├── README.md
 ├── .gitignore
@@ -183,7 +199,10 @@ CodysseyMission_E1_2/
 
 | 경로 | 역할 |
 | --- | --- |
-| `main.py` | `Quiz`, `QuizGame` 클래스와 실행 코드 |
+| `main.py` | 프로그램을 시작하는 실행 진입점 |
+| `game.py` | `QuizGame` 클래스와 메뉴·게임 진행·사용자 입출력 |
+| `quiz.py` | `Quiz` 클래스, 선택지 규칙, 기본 퀴즈 데이터 |
+| `storage.py` | `StateStore` 클래스, JSON 저장·불러오기·롤링 백업 |
 | `state.json` | 퀴즈와 최고 점수 저장 파일 |
 | `tests/test_quiz.py` | 핵심 클래스와 파일 저장 기능 테스트 |
 | `docs/GIT_PRACTICE.md` | clone, pull 등 Git 명령 실습 기록 안내 |
