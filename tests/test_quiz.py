@@ -68,7 +68,29 @@ class QuizGameTest(unittest.TestCase):
             self.assertGreaterEqual(len(game.quizzes), 5)
             self.assertIsNone(game.best_score)
 
+    def test_save_state_keeps_three_rolling_backups(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            state_file = Path(directory) / "state.json"
+            game = QuizGame(state_file, auto_load=False)
+            game.quizzes = create_default_quizzes()
+
+            for score in (10, 20, 30, 40, 50):
+                game.best_score = {"correct": 1, "total": 5, "score": score}
+                self.assertTrue(game.save_state())
+
+            backups = [
+                state_file.with_name(f"state.json.bak.{version}")
+                for version in range(1, 4)
+            ]
+            self.assertTrue(all(backup.exists() for backup in backups))
+            self.assertFalse(state_file.with_name("state.json.bak.4").exists())
+
+            backup_scores = []
+            for backup in backups:
+                with backup.open("r", encoding="utf-8") as file:
+                    backup_scores.append(json.load(file)["best_score"]["score"])
+            self.assertEqual(backup_scores, [40, 30, 20])
+
 
 if __name__ == "__main__":
     unittest.main()
-

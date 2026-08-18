@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 from typing import Any
 
 
 STATE_FILE = Path(__file__).resolve().parent / "state.json"
+BACKUP_LIMIT = 3
 
 
 class Quiz:
@@ -272,19 +274,40 @@ class QuizGame:
             self.reset_to_defaults()
 
     def save_state(self) -> bool:
-        """현재 퀴즈와 최고 점수를 UTF-8 JSON 파일로 저장한다."""
+        """기존 파일을 백업하고 현재 상태를 UTF-8 JSON으로 저장한다."""
         data = {
             "quizzes": [quiz.to_dict() for quiz in self.quizzes],
             "best_score": self.best_score,
         }
 
         try:
+            self.create_backup()
             with self.state_file.open("w", encoding="utf-8") as file:
                 json.dump(data, file, ensure_ascii=False, indent=2)
             return True
         except OSError as error:
             print(f"⚠️ 데이터를 저장할 수 없습니다: {error}")
             return False
+
+    def create_backup(self) -> None:
+        """기존 저장 파일을 최근 3개까지 롤링 백업한다."""
+        if not self.state_file.exists():
+            return
+
+        for version in range(BACKUP_LIMIT, 1, -1):
+            older_backup = self.state_file.with_name(
+                f"{self.state_file.name}.bak.{version - 1}"
+            )
+            next_backup = self.state_file.with_name(
+                f"{self.state_file.name}.bak.{version}"
+            )
+            if older_backup.exists():
+                older_backup.replace(next_backup)
+
+        latest_backup = self.state_file.with_name(
+            f"{self.state_file.name}.bak.1"
+        )
+        shutil.copy2(self.state_file, latest_backup)
 
     def run(self) -> None:
         """메뉴를 반복 실행하고 예외 발생 시 안전하게 종료한다."""
@@ -318,4 +341,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

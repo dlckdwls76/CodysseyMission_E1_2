@@ -11,4 +11,4 @@ env/
 .DS_Store
 .vscode/
 .idea/
-
+state.json.bak.*
