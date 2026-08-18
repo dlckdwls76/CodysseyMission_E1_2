@@ -14,12 +14,12 @@
 
 캡처할 때는 실행 명령어와 출력 결과가 함께 보이도록 합니다. 개인 이메일, 토큰 등 민감한 정보는 이미지에 포함하지 않습니다.
 
-![VS Code, Python 및 Git 환경](docs/screenshots/environment.png)
+![VS Code, Python 및 Git 환경](environment.png)
 
-![프로그램메인메뉴](docs/screenshots/menu.png)
+![프로그램메인메뉴](menu.png)
 
-![퀴즈추가](docs/screenshots/add_quiz.png)
+![퀴즈추가](add_quiz.png)
 
-![퀴즈목록(추가까지포함)](docs/screenshots/list.png)
+![퀴즈목록(추가까지포함)](list.png)
 
-![퀴즈결과와 최고 점수](docs/screenshots/score.png)
+![퀴즈결과와 최고 점수](score.png)
