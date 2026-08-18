@@ -65,4 +65,4 @@ git status
 git log --oneline --graph --all --decorate
 ```
 
-명령어와 출력 결과가 함께 보이도록 캡처하여 `docs/screenshots/git-log.png`로 저장
+![Git 푸시&풀 기록](screenshots/status.png)
