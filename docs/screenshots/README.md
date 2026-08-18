@@ -18,8 +18,8 @@
 
 ![프로그램메인메뉴](docs/screenshots/menu.png)
 
-![프로그램메인메뉴](docs/screenshots/add_quiz.png)
+![퀴즈추가](docs/screenshots/add_quiz.png)
 
-![프로그램메인메뉴](docs/screenshots/list.png)
+![퀴즈목록(추가까지포함)](docs/screenshots/list.png)
 
-![프로그램메인메뉴](docs/screenshots/score.png)
+![퀴즈결과와 최고 점수](docs/screenshots/score.png)
