@@ -49,8 +49,21 @@
         "object"
       ],
       "answer": 2
+    },
+    {
+      "question": "저의 이름은 무엇일까요?~",
+      "choices": [
+        "이창진",
+        "이창준",
+        "이찰진",
+        "이춘진"
+      ],
+      "answer": 1
     }
   ],
-  "best_score": null
+  "best_score": {
+    "correct": 1,
+    "total": 5,
+    "score": 20
+  }
 }
-
