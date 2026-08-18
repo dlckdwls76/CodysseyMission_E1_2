@@ -23,3 +23,7 @@
 ![퀴즈목록(추가까지포함)](list.png)
 
 ![퀴즈결과와 최고 점수](score.png)
+
+![깃 로그](git-log.png)
+
+![깃 로그](git-log2.png)
