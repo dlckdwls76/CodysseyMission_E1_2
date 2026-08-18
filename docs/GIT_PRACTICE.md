@@ -28,7 +28,7 @@ git merge feature/practice
 git push origin main
 ```
 
-![Git 브랜치 병합 기록](docs/screenshots/merge.png)
+![Git 브랜치 병합 기록](screenshots/merge.png)
 
 ## clone과 pull 실습
 
