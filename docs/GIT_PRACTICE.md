@@ -39,6 +39,8 @@ git clone https://github.com/dlckdwls76/CodysseyMission_E1_2.git CodysseyMission
 cd CodysseyMission_E1_2_clone
 ```
 
+![Git 푸시&풀 기록](screenshots/push&pull.png)
+
 복제된 폴더에서 README에 간단한 한 줄을 추가한 다음 실행합니다.
 
 ```bash
