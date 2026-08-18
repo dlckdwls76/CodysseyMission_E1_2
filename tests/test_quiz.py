@@ -31,6 +31,16 @@ class QuizGameTest(unittest.TestCase):
     def test_default_quizzes_are_at_least_five(self) -> None:
         self.assertGreaterEqual(len(create_default_quizzes()), 5)
 
+    def test_calculate_score(self) -> None:
+        self.assertEqual(QuizGame.calculate_score(4, 5), 80)
+
+    def test_update_best_score_only_keeps_higher_score(self) -> None:
+        game = QuizGame(auto_load=False)
+
+        self.assertTrue(game.update_best_score(3, 5, 60))
+        self.assertFalse(game.update_best_score(2, 5, 40))
+        self.assertEqual(game.best_score, {"correct": 3, "total": 5, "score": 60})
+
     def test_save_and_load_state(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             state_file = Path(directory) / "state.json"

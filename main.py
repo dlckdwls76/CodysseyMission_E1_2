@@ -10,6 +10,7 @@ from typing import Any
 
 STATE_FILE = Path(__file__).resolve().parent / "state.json"
 BACKUP_LIMIT = 3
+CHOICE_COUNT = 4
 
 
 class Quiz:
@@ -21,12 +22,12 @@ class Quiz:
 
         if not question:
             raise ValueError("문제는 비어 있을 수 없습니다.")
-        if len(cleaned_choices) != 4:
-            raise ValueError("선택지는 정확히 4개여야 합니다.")
+        if len(cleaned_choices) != CHOICE_COUNT:
+            raise ValueError(f"선택지는 정확히 {CHOICE_COUNT}개여야 합니다.")
         if any(not choice for choice in cleaned_choices):
             raise ValueError("선택지는 비어 있을 수 없습니다.")
-        if answer not in range(1, 5):
-            raise ValueError("정답 번호는 1~4 사이여야 합니다.")
+        if answer not in range(1, CHOICE_COUNT + 1):
+            raise ValueError(f"정답 번호는 1~{CHOICE_COUNT} 사이여야 합니다.")
 
         self.question = question
         self.choices = cleaned_choices
@@ -163,40 +164,62 @@ class QuizGame:
         print(f"\n📝 퀴즈를 시작합니다! (총 {total}문제)")
 
         for number, quiz in enumerate(self.quizzes, start=1):
-            quiz.display(number)
-            user_answer = self.read_number("정답 입력 (1-4): ", 1, 4)
-
-            if quiz.check_answer(user_answer):
+            if self.ask_quiz(quiz, number):
                 correct += 1
-                print("✅ 정답입니다!")
-            else:
-                correct_choice = quiz.choices[quiz.answer - 1]
-                print(f"❌ 오답입니다. 정답은 {quiz.answer}번 ({correct_choice})입니다.")
 
-        score = round(correct / total * 100)
+        score = self.calculate_score(correct, total)
         print("\n" + "=" * 40)
         print(f"🏆 결과: {total}문제 중 {correct}문제 정답! ({score}점)")
 
-        if self.best_score is None or score > self.best_score["score"]:
-            self.best_score = {
-                "correct": correct,
-                "total": total,
-                "score": score,
-            }
+        if self.update_best_score(correct, total, score):
             print("🎉 새로운 최고 점수입니다!")
             self.save_state()
         else:
             print(f"현재 최고 점수는 {self.best_score['score']}점입니다.")
         print("=" * 40)
 
+    def ask_quiz(self, quiz: Quiz, number: int) -> bool:
+        """퀴즈 한 문제를 출제하고 정답 여부를 반환한다."""
+        quiz.display(number)
+        user_answer = self.read_number(
+            f"정답 입력 (1-{CHOICE_COUNT}): ", 1, CHOICE_COUNT
+        )
+
+        if quiz.check_answer(user_answer):
+            print("✅ 정답입니다!")
+            return True
+
+        correct_choice = quiz.choices[quiz.answer - 1]
+        print(f"❌ 오답입니다. 정답은 {quiz.answer}번 ({correct_choice})입니다.")
+        return False
+
+    @staticmethod
+    def calculate_score(correct: int, total: int) -> int:
+        """정답 수를 100점 기준 점수로 변환한다."""
+        return round(correct / total * 100)
+
+    def update_best_score(self, correct: int, total: int, score: int) -> bool:
+        """최고 점수라면 기록을 갱신하고 True를 반환한다."""
+        if self.best_score is not None and score <= self.best_score["score"]:
+            return False
+
+        self.best_score = {
+            "correct": correct,
+            "total": total,
+            "score": score,
+        }
+        return True
+
     def add_quiz(self) -> None:
         print("\n📌 새로운 퀴즈를 추가합니다.")
         question = self.read_text("문제를 입력하세요: ")
         choices = [
             self.read_text(f"선택지 {number}: ")
-            for number in range(1, 5)
+            for number in range(1, CHOICE_COUNT + 1)
         ]
-        answer = self.read_number("정답 번호 (1-4): ", 1, 4)
+        answer = self.read_number(
+            f"정답 번호 (1-{CHOICE_COUNT}): ", 1, CHOICE_COUNT
+        )
 
         self.quizzes.append(Quiz(question, choices, answer))
         if self.save_state():
@@ -242,18 +265,7 @@ class QuizGame:
                 raise ValueError("quizzes는 목록이어야 합니다.")
 
             self.quizzes = [Quiz.from_dict(item) for item in quizzes_data]
-            best_score = data.get("best_score")
-            if best_score is not None:
-                required_keys = {"correct", "total", "score"}
-                if not isinstance(best_score, dict) or not required_keys.issubset(best_score):
-                    raise ValueError("best_score 형식이 올바르지 않습니다.")
-                self.best_score = {
-                    "correct": int(best_score["correct"]),
-                    "total": int(best_score["total"]),
-                    "score": int(best_score["score"]),
-                }
-            else:
-                self.best_score = None
+            self.best_score = self.parse_best_score(data.get("best_score"))
 
             print(
                 f"📂 저장된 데이터를 불러왔습니다. "
@@ -273,21 +285,43 @@ class QuizGame:
             print("현재 실행에서는 기본 퀴즈를 사용합니다.")
             self.reset_to_defaults()
 
-    def save_state(self) -> bool:
-        """기존 파일을 백업하고 현재 상태를 UTF-8 JSON으로 저장한다."""
-        data = {
-            "quizzes": [quiz.to_dict() for quiz in self.quizzes],
-            "best_score": self.best_score,
+    @staticmethod
+    def parse_best_score(best_score: Any) -> dict[str, int] | None:
+        """JSON의 최고 점수 데이터 형식을 검사하고 변환한다."""
+        if best_score is None:
+            return None
+
+        required_keys = {"correct", "total", "score"}
+        if not isinstance(best_score, dict) or not required_keys.issubset(best_score):
+            raise ValueError("best_score 형식이 올바르지 않습니다.")
+
+        return {
+            "correct": int(best_score["correct"]),
+            "total": int(best_score["total"]),
+            "score": int(best_score["score"]),
         }
 
+    def save_state(self) -> bool:
+        """기존 파일을 백업하고 현재 상태를 UTF-8 JSON으로 저장한다."""
         try:
             self.create_backup()
             with self.state_file.open("w", encoding="utf-8") as file:
-                json.dump(data, file, ensure_ascii=False, indent=2)
+                json.dump(self.to_dict(), file, ensure_ascii=False, indent=2)
             return True
         except OSError as error:
             print(f"⚠️ 데이터를 저장할 수 없습니다: {error}")
             return False
+
+    def to_dict(self) -> dict[str, Any]:
+        """현재 게임 상태를 JSON 저장용 딕셔너리로 변환한다."""
+        return {
+            "quizzes": [quiz.to_dict() for quiz in self.quizzes],
+            "best_score": self.best_score,
+        }
+
+    def backup_path(self, version: int) -> Path:
+        """지정한 버전의 백업 파일 경로를 반환한다."""
+        return self.state_file.with_name(f"{self.state_file.name}.bak.{version}")
 
     def create_backup(self) -> None:
         """기존 저장 파일을 최근 3개까지 롤링 백업한다."""
@@ -295,19 +329,28 @@ class QuizGame:
             return
 
         for version in range(BACKUP_LIMIT, 1, -1):
-            older_backup = self.state_file.with_name(
-                f"{self.state_file.name}.bak.{version - 1}"
-            )
-            next_backup = self.state_file.with_name(
-                f"{self.state_file.name}.bak.{version}"
-            )
+            older_backup = self.backup_path(version - 1)
+            next_backup = self.backup_path(version)
             if older_backup.exists():
                 older_backup.replace(next_backup)
 
-        latest_backup = self.state_file.with_name(
-            f"{self.state_file.name}.bak.1"
-        )
-        shutil.copy2(self.state_file, latest_backup)
+        shutil.copy2(self.state_file, self.backup_path(1))
+
+    def handle_menu(self, menu_number: int) -> bool:
+        """선택한 메뉴를 실행하고 계속 실행할지 반환한다."""
+        if menu_number == 1:
+            self.play_quiz()
+        elif menu_number == 2:
+            self.add_quiz()
+        elif menu_number == 3:
+            self.list_quizzes()
+        elif menu_number == 4:
+            self.show_best_score()
+        else:
+            self.save_state()
+            print("\n👋 데이터를 저장하고 게임을 종료합니다.")
+            return False
+        return True
 
     def run(self) -> None:
         """메뉴를 반복 실행하고 예외 발생 시 안전하게 종료한다."""
@@ -315,18 +358,7 @@ class QuizGame:
             while True:
                 self.show_menu()
                 menu_number = self.read_number("선택: ", 1, 5)
-
-                if menu_number == 1:
-                    self.play_quiz()
-                elif menu_number == 2:
-                    self.add_quiz()
-                elif menu_number == 3:
-                    self.list_quizzes()
-                elif menu_number == 4:
-                    self.show_best_score()
-                else:
-                    self.save_state()
-                    print("\n👋 데이터를 저장하고 게임을 종료합니다.")
+                if not self.handle_menu(menu_number):
                     return
         except (KeyboardInterrupt, EOFError):
             print("\n\n⚠️ 입력이 중단되었습니다.")
