@@ -49,6 +49,8 @@ git commit -m "Docs: clone 실습 확인 문구 추가"
 git push origin main
 ```
 
+![Git 푸시&풀 기록](screenshots/clone.png)
+
 기존 작업 폴더로 이동하여 변경사항을 가져옵니다.
 
 ```bash
