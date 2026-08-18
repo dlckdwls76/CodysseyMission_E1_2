@@ -30,6 +30,18 @@ git push origin main
 
 ![Git 브랜치 병합 기록](screenshots/merge.png)
 
+### 실제 병합 그래프 증빙
+
+`feature/merge-evidence` 브랜치에서 이 문서를 수정하고 커밋한 뒤, `main` 브랜치에서 `--no-ff` 옵션으로 병합했습니다. 이 옵션을 사용하면 별도의 병합 커밋과 브랜치가 갈라졌다 합쳐지는 그래프가 기록됩니다.
+
+```bash
+git switch main
+git merge --no-ff feature/merge-evidence -m "merge: 브랜치 병합 그래프 증빙 추가"
+git log --oneline --graph --all --decorate -15
+```
+
+![Git log 병합 그래프](screenshots/git-log.png)
+
 ## clone과 pull 실습
 
 기존 프로젝트 폴더와 같은 상위 폴더에서 실행합니다.
