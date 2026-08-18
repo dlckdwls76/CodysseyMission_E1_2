@@ -14,4 +14,12 @@
 
 캡처할 때는 실행 명령어와 출력 결과가 함께 보이도록 합니다. 개인 이메일, 토큰 등 민감한 정보는 이미지에 포함하지 않습니다.
 
-test 메세지22
+![VS Code, Python 및 Git 환경](docs/screenshots/environment.png)
+
+![프로그램메인메뉴](docs/screenshots/menu.png)
+
+![프로그램메인메뉴](docs/screenshots/add_quiz.png)
+
+![프로그램메인메뉴](docs/screenshots/list.png)
+
+![프로그램메인메뉴](docs/screenshots/score.png)
